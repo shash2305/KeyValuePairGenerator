@@ -64,7 +64,23 @@ def read_image(file, languages=['en']):
 def extract_key_value_pairs(text):
     """Extract key-value pairs using Gemini API."""
     model = genai.GenerativeModel("gemini-2.0-pro-exp-02-05")
-    prompt = f"Extract key-value pairs from the following text and return a **valid JSON object**:\n\n{text}"
+    prompt = f"""
+    Extract key-value pairs from the following text and return a valid JSON object. 
+
+    Text:
+    {text}
+
+    Ensure:
+    - The output is **strictly JSON** (without markdown or explanations).
+    - If no key-value pairs exist, return an **empty JSON object**.
+
+    Example Output:
+    {{
+        "Name": "John Doe",
+        "Date of Birth": "1990-01-01",
+        "Address": "123 Street, City, Country"
+    }}
+    """
     
     response = model.generate_content(prompt)
     
