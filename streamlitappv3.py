@@ -9,6 +9,8 @@ import google.generativeai as genai
 import json
 import os
 import base64
+import pdfplumber
+
 
 # Load environment variables
 load_dotenv()
@@ -16,7 +18,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def read_pdf(file):
     """Extract text from PDF file."""
-    doc = fitz.open(stream=file.read(), filetype="pdf")
+    doc = fitz.open(stream=file.getvalue(), filetype="pdf")
     text = "\n".join(page.get_text("text") for page in doc)
     return text
 
@@ -120,7 +122,11 @@ if uploaded_file is not None:
     with col1:
         st.subheader("📄 Uploaded File Preview")
         if uploaded_file.type == "application/pdf":
-            display_pdf(uploaded_file)
+            copy_file = uploaded_file
+            with pdfplumber.open(copy_file) as pdf:
+                for page in pdf.pages:
+                    image = page.to_image()
+                    st.image(image.annotated, caption=f"📄 Page {page.page_number}")
         else:
             display_image(uploaded_file)
     
